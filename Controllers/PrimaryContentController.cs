@@ -81,7 +81,7 @@ namespace Base64Thumbnail.Controllers
             try
             {
                 int currentSize = 0;
-                double comparisonRatio = .5;  // subsequent image becomes primary if twice as large as current primary
+                double comparisonRatio = .333;  // subsequent image becomes primary if thrice ice as large as current primary
                 string[] urlParts = Regex.Split(url, "://");
                 string proto = urlParts[0] + ":";
                 string host = proto + "//" + Regex.Split(urlParts[1], "/")[0];
