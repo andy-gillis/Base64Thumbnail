@@ -45,7 +45,8 @@
     <Compile Include="App_Start\WebApiConfig.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Controllers\PrimaryImageController.cs" />
+    <Compile Include="Classes\WebContent.cs" />
+    <Compile Include="Controllers\PrimaryContentController.cs" />
     <Compile Include="Controllers\ThumbnailController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
@@ -54,8 +55,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="primary-image-to-thumbnail.aspx" />
-    <Content Include="primary-image.aspx" />
+    <Content Include="primary-content.aspx" />
     <Content Include="thumbnail.aspx" />
     <Content Include="default.aspx" />
     <Content Include="Global.asax" />

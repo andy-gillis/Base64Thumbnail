@@ -41,7 +41,9 @@
          w <input type="text" name="w" id="w" value="240" style="display:inline;width:70px" />
          h <input type="text" name="h" id="h" value="180" style="display:inline;width:70px" /> 
     </div>
-    <div>&#160;<br />Calling: <span name="serviceurl" id="serviceurl">[service]</span></div>
+    <div>&#160;<br />Service...<br />
+        <span id="serviceurl">[thumbnail service]</span>
+    </div>
     <div>&#160;<br />Thumbnail image...</div>
     <div name="imgpanel" id="imgpanel" style="border: 1px solid #ddd; text-align:center; width: 240px; height: 180px;">
         <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAUEBAAAACwAAAAAAQABAAACAkQBADs=" name="image0" id="image0" />

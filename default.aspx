@@ -11,14 +11,10 @@
 <body>
     <div><b>Select a service...</b></div>
     <div>
-        <a href="primary-image.aspx">Primary-image</a>
+        <a href="primary-content.aspx">Primary-content</a>
     </div>
     <div>
         <a href="thumbnail.aspx">Thumbnail</a>
-    </div>
-    <div>&#160;<br /><b>Select an implementation...</b></div>
-    <div>
-        <a href="primary-image-to-thumbnail.aspx">Primary-image as base64 thumbnail</a>
     </div>
 </body>
 </html>
