@@ -38,7 +38,7 @@
 <body>
     <div>Enter webpage url and image dimensions to render primary content...</div>
     <div>
-        <input type="text" id="url" value="http://www.cnn.com/2017/09/01/health/utah-nurse-arrest-police-video/index.html" style="width:65%" />
+        <input type="text" id="url" value="https://www.washingtonpost.com/politics/mueller-examining-trumps-draft-letter-firing-fbi-director-comey/2017/09/01/52c6cd8e-8f17-11e7-8df5-c2e5cf46c1e2_story.html" style="width:65%" />
         <input type="button" id="submit" value="Submit" onclick="parseWebsite()" style="height:1.8em" />
     </div>
     <div style="padding-top: 12px">

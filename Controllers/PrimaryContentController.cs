@@ -6,34 +6,94 @@ using System.Net;
 using System.Text.RegularExpressions;
 using System.Web.Http;
 using Base64Thumbnail.Classes;
+//using System.Threading;
+//using System.Security.Permissions;
 
 namespace Base64Thumbnail.Controllers
 {
+
+    //[PermissionSet(SecurityAction.Demand, Name = "FullTrust")]
     public class PrimaryContentController : ApiController
     {
+        //private string _url = String.Empty;
+        //private string _html = String.Empty;
         public IHttpActionResult GetPrimaryContent(string url)
         {
             ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
-            WebClient client = new WebClient();
+            WebClient client = new WebClient() { Encoding = System.Text.Encoding.UTF8 };
             HtmlDocument document = new HtmlDocument();
+
             string html = String.Empty;
             string primaryImageUrl = String.Empty;
             string primaryHeading = String.Empty;
             string transGif = "data:image/gif;base64,R0lGODlhAQABAIAAAAUEBAAAACwAAAAAAQABAAACAkQBADs=";
             string[] elementNames = { "heading", "article", "main", "section", "div", "body" };
-            WebContent webContent = new WebContent(primaryImageUrl, primaryHeading);
+            WebContent webContent;
 
             html = client.DownloadString(url);
+
+            /* try loading page and executing its script */
+            //_url = url;
+            //Thread thread = new Thread(new ThreadStart(GetWebPageSource));
+            //thread.SetApartmentState(ApartmentState.STA);
+            //thread.Start();
+            //thread.Join();
+            //html = _html;
+
             document.LoadHtml(html);
-            primaryImageUrl = GetPrimaryImageSrcFromUrl(document, url, transGif);
-            primaryHeading = WebUtility.HtmlDecode(GetPrimaryHeadingFromElements(document, elementNames));
+
+            primaryImageUrl = GetPrimaryImageSrcFromUrlOrMeta(document, url, transGif);
+            primaryHeading = WebUtility.HtmlDecode(GetPrimaryHeadingFromElementsOrMeta(document, elementNames));
             webContent = new WebContent(primaryImageUrl, primaryHeading);
 
             return Ok(webContent);
         }
 
-        private string GetPrimaryHeadingFromElements(HtmlDocument document, string[] elementNames)
+        //protected void GetWebPageSource()
+        //{
+        //    using (System.Windows.Forms.WebBrowser browser = new System.Windows.Forms.WebBrowser())
+        //    {
+        //        int numberOfMilisecondsToSleep = 12999;
+        //        browser.ScriptErrorsSuppressed = true;
+        //        browser.AllowNavigation = true;
+        //        browser.ScrollBarsEnabled = false;
+        //        browser.Navigate(_url);
+        //        while (browser.ReadyState != System.Windows.Forms.WebBrowserReadyState.Complete)
+        //        {
+        //            System.Windows.Forms.Application.DoEvents();
+        //            System.Threading.Thread.Sleep(1000); // allow dom changes
+        //        }
+        //        System.Threading.Thread.Sleep(numberOfMilisecondsToSleep); // allow dom changes
+        //        browser.Stop();
+        //        _html = browser.Document.GetElementsByTagName("body")[0].OuterHtml;
+        //        browser.Dispose();
+        //    }
+        //}
+
+        private string GetOpenGraphicsMetaContentFromDocument(HtmlDocument document, string prop)
         {
+            string metaProp = String.Empty;
+            IEnumerable<HtmlNode> htmlNodes = (
+                from d in document.DocumentNode.Descendants()
+                where d.Name == "meta" && d.Attributes["property"] != null && d.Attributes["property"].Value == prop
+                select d);
+
+            if (htmlNodes != null && htmlNodes.Count() > 0)
+            {
+                metaProp = htmlNodes.First().Attributes["content"].Value;
+            }
+
+            return metaProp;
+        }
+
+        private string GetPrimaryHeadingFromElementsOrMeta(HtmlDocument document, string[] elementNames)
+        {
+            string primaryHeading = GetOpenGraphicsMetaContentFromDocument(document, "og:title");
+            if (primaryHeading != null && primaryHeading.Length > 0)
+            {
+                return primaryHeading;
+            }
+
             int i = 0;
             int maxi = elementNames.Length;
             string elementName = String.Empty;
@@ -66,7 +126,7 @@ namespace Base64Thumbnail.Controllers
                 where d.Name == headingName && d.Ancestors(elementName).Count() > 0
                 select d);
 
-            if (htmlNodes.Count() > 0)
+            if (htmlNodes != null && htmlNodes.Count() > 0)
             {
                 return htmlNodes.First();
             }
@@ -74,14 +134,19 @@ namespace Base64Thumbnail.Controllers
             return null;
         }
 
-        private string GetPrimaryImageSrcFromUrl(HtmlDocument document, string url, string transGif)
+        private string GetPrimaryImageSrcFromUrlOrMeta(HtmlDocument document, string url, string transGif)
         {
-            string primaryImageSrc = transGif;
+            string primaryImageSrc = GetOpenGraphicsMetaContentFromDocument(document, "og:image");
+            if (primaryImageSrc != null && primaryImageSrc.Length > 0)
+            {
+                return primaryImageSrc;
+            }
+
+            primaryImageSrc = transGif;
 
             try
             {
                 int currentSize = 0;
-                double comparisonRatio = .333;  // subsequent image becomes primary if thrice ice as large as current primary
                 string[] urlParts = Regex.Split(url, "://");
                 string proto = urlParts[0] + ":";
                 string host = proto + "//" + Regex.Split(urlParts[1], "/")[0];
@@ -103,7 +168,7 @@ namespace Base64Thumbnail.Controllers
                     {
                         string imgSource = GetAbsoluteImageSource(image, proto, host, path, transGif);
                         int contentLength = GetImageContentLength(imgSource);
-                        if (contentLength * comparisonRatio > currentSize)
+                        if (contentLength > currentSize * 3)
                         {
                             primaryImageSrc = imgSource;
                             currentSize = contentLength;
