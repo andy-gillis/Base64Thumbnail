@@ -6,17 +6,11 @@ using System.Net;
 using System.Text.RegularExpressions;
 using System.Web.Http;
 using Base64Thumbnail.Classes;
-//using System.Threading;
-//using System.Security.Permissions;
 
 namespace Base64Thumbnail.Controllers
 {
-
-    //[PermissionSet(SecurityAction.Demand, Name = "FullTrust")]
     public class PrimaryContentController : ApiController
     {
-        //private string _url = String.Empty;
-        //private string _html = String.Empty;
         public IHttpActionResult GetPrimaryContent(string url)
         {
             ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
@@ -31,15 +25,6 @@ namespace Base64Thumbnail.Controllers
             WebContent webContent;
 
             html = client.DownloadString(url);
-
-            /* try loading page and executing its script */
-            //_url = url;
-            //Thread thread = new Thread(new ThreadStart(GetWebPageSource));
-            //thread.SetApartmentState(ApartmentState.STA);
-            //thread.Start();
-            //thread.Join();
-            //html = _html;
-
             document.LoadHtml(html);
 
             primaryImageUrl = GetPrimaryImageSrcFromUrlOrMeta(document, url, transGif);
@@ -48,27 +33,6 @@ namespace Base64Thumbnail.Controllers
 
             return Ok(webContent);
         }
-
-        //protected void GetWebPageSource()
-        //{
-        //    using (System.Windows.Forms.WebBrowser browser = new System.Windows.Forms.WebBrowser())
-        //    {
-        //        int numberOfMilisecondsToSleep = 12999;
-        //        browser.ScriptErrorsSuppressed = true;
-        //        browser.AllowNavigation = true;
-        //        browser.ScrollBarsEnabled = false;
-        //        browser.Navigate(_url);
-        //        while (browser.ReadyState != System.Windows.Forms.WebBrowserReadyState.Complete)
-        //        {
-        //            System.Windows.Forms.Application.DoEvents();
-        //            System.Threading.Thread.Sleep(1000); // allow dom changes
-        //        }
-        //        System.Threading.Thread.Sleep(numberOfMilisecondsToSleep); // allow dom changes
-        //        browser.Stop();
-        //        _html = browser.Document.GetElementsByTagName("body")[0].OuterHtml;
-        //        browser.Dispose();
-        //    }
-        //}
 
         private string GetOpenGraphicsMetaContentFromDocument(HtmlDocument document, string prop)
         {
